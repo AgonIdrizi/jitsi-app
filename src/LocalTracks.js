@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { componentGetCompareProps } from './Shared'
 import './LocalTracks.css'
 
-export class LocalTracks extends React.Component {
+class LocalTracks extends React.Component {
     constructor (props) {
         super(props)
 

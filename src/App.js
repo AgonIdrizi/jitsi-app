@@ -1,28 +1,30 @@
 import { useState, useEffect } from 'react';
-import LocalSpeaker from './LocalSpeaker';
-import LocalTracks from './LocalTracks';
-import logo from './logo.svg';
-import './App.css';
 import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'
+import LocalSpeaker from './LocalSpeaker';
+import LocalTracks from './LocalTracks';
+import RemoteTrack from './RemoteTrack';
+import RemoteTrackH from './RemoteTrackH'
+import './App.css';
+
 
 
 
 function App() {
-  const [state, setState] = useState({
-    serverURL: 'alpha.jitsi.net',
-    roomId: 'testroom',
-    selectedSpeakerDeviceId: '',
-    defaultMicId: '',
-    defaultVideoId: '',
-    defaultSpeakerId: '',
-    deviceList: [],
-    status: 'closed',
-    lastError: '',
-    remoteTrackIds: [],
-    loaded: false,
-    activeRoomId: null
-  })
+
+  const [serverURL, setServerURL] = useState('alpha.jitsi.net')
+  const [roomId, setRoomId] = useState('testroomsherpany')
+  const [selectedSpeakerDeviceId, setSelectedSpeakerDeviceId] = useState('');
+  const [defaultMicId, setDefaultMicId] = useState('')
+  const [defaultVideoId, setDefaultVideoId] = useState('')
+  const [defaultSpeakerId, setDefaultSpeakerId] = useState('')
+  const [deviceList, setDeviceList] = useState('')
+  const [status, setStatus] = useState('closed')
+  const [lastError, setLastError] = useState('')
+  const [remoteTrackIds, setRemoteTrackIds] = useState([])
+  const [loaded, setLoaded] = useState(false)
+  const [activeRoomId, setActiveRoomId] = useState(null)
+  const [remoteTracks, setRemoteTracks] = useState([])
 
  
 
@@ -47,28 +49,27 @@ function App() {
       let micId = (_.find(newDeviceList, { type: 'audioinput' }) || {}).id || 'none'
       let videoId = (_.find(newDeviceList, { type: 'videoinput' }) || {}).id || 'none'
       let speakerId = (_.find(newDeviceList, {type: 'audioinput' }) || {}).id || 'none'
-      let updatedProperties = {
-        deviceList: newDeviceList,
-        defaultMicId: micId,
-        defaultVideoId: videoId,
-        defaultSpeakerId: speakerId,
-        loaded: true
-      }
-      setState({...state, ...updatedProperties})
+      
+      setDeviceList(newDeviceList)
+      setDefaultMicId(micId)
+      setDefaultVideoId(videoId)
+      setDefaultSpeakerId(speakerId)
+      setLoaded(true)
+
     })
     console.log('agon', window.JitsiMeetJS)
   }, [])
 
   const onSpeakerChanged = (newSpeaker) => {
-    setState({...state, selectedSpeakerDeviceId: newSpeaker.id});
+    setSelectedSpeakerDeviceId( newSpeaker.id);
   }
 
   const onServerChanged = (event) => {
-    setState({...state, serverURL: event.target.value});
+    setServerURL( event.target.value);
   }
 
   const onRoomChanged = (event) => {
-    setState({...state, roomId: event.target.value});
+    setRoomId(event.target.value);
   }
 
   const onRoomTrackAdded = (track) => {
@@ -77,7 +78,7 @@ function App() {
     }
     let newTrackId = track.getId()
     console.log(`Track Added: ${newTrackId}`)
-    let matchTrack = _.find(state.remoteTracks, { id: newTrackId })
+    let matchTrack = _.find(remoteTracks, { id: newTrackId })
     if (matchTrack) {
       return
     }
@@ -88,9 +89,9 @@ function App() {
       track: track
     }
     window.sherpany.remoteTracks.push(trackInfo)
-    setState({...state,
-      remoteTrackIds: _.map(window.sherpany.remoteTracks, (rt) => { return { id: rt.id, participantId: rt.participantId } })
-    })
+    setRemoteTrackIds( 
+      _.map(window.sherpany.remoteTracks, (rt) => { return { id: rt.id, participantId: rt.participantId } })
+    )
   }
 
   const onRoomTrackRemoved = (track) => {
@@ -99,13 +100,13 @@ function App() {
     }
     let trackId = track.getId()
     window.sherpany.remoteTracks = _.reject(window.sherpany.remoteTracks, { id: trackId })
-    setState({...state,
-      remoteTrackIds: _.map(window.sherpany.remoteTracks, (rt) => { return { id: rt.id, participantId: rt.participantId } })
-    })
+    setRemoteTrackIds(
+      _.map(window.sherpany.remoteTracks, (rt) => { return { id: rt.id, participantId: rt.participantId } })
+    )
   }
 
   const onConnectionSuccess = () => {
-    const { roomId } = state
+    //const { roomId } = state
     try {
       window.sherpany.activeRoom = window.sherpany.activeConnection.initJitsiConference(roomId, {
         openBridgeChannel: true
@@ -114,25 +115,23 @@ function App() {
       window.sherpany.activeRoom.addEventListener(window.JitsiMeetJS.events.conference.TRACK_REMOVED, onRoomTrackRemoved)
       
       window.sherpany.activeRoom.join()
-   setState({...state,
-        status: 'open',
-        lastError: '',
-        activeRoomId: uuidv4()
-      })
+
+      setStatus('open')
+      setLastError('')
+      setActiveRoomId(uuidv4())
     } catch (error) {
-      setState({...state,
-        status: 'closed',
-        lastError: error.message
-      })
+      console.log('onConnectionSuccess state.status', status)
+      
+      setStatus('closed')
+      setLastError(error.message)
     }
   }
 
   const onConnectionFailed = (a, b, c, d) => {
-    setState({...state,
-      status: 'closed',
-      lastError: a,
-      activeRoomId: null
-    })
+    console.log('onConnectionFailed state.status', status)
+    setStatus('closed')
+    setLastError(a)
+    setActiveRoomId(null)
   }
 
   const onConnectionDisconnect = () => {
@@ -144,8 +143,8 @@ function App() {
   }
 
   const onConnect = () => {
-    const { roomId, serverURL } = state
-    setState({...state, status: 'Joining...'})
+    //const { roomId, serverURL } = state
+    setStatus( 'Joining...')
     window.sherpany.activeConnection = new window.JitsiMeetJS.JitsiConnection(null, null, {
       hosts: {
         domain: serverURL,
@@ -163,30 +162,27 @@ function App() {
 
   const onDisconnect = () => {
     if (window.sherpany.activeRoom) {
-      setState({...state,
-        status: 'Leaving...'
-      })
+      setStatus('Leaving...')
       try {
         window.sherpany.activeRoom.leave().then(() => {
           if (window.sherpany.activeConnection) {
             window.sherpany.activeConnection.disconnect()
           }
-          setState({...state,
-            status: 'closed',
-            remoteTracks: [],
-            activeRoomId: null
-          })
+          setStatus('closed')
+          setRemoteTracks([])
+          setActiveRoomId(null)
         })
       } catch (error) {
-        setState({...state,
-          status: 'closed',
-          lastError: error.message
-        })
+       
+        setStatus('closed')
+        setLastError(error.message)
       }
     }
   }
 
-  const renderRemoteTracks = (trackGroups = {}, selectedSpeakerDeviceId) => {
+  const remoteTrackGroups =  _.groupBy(remoteTrackIds, (rt) => { return rt.participantId })
+
+  const renderRemoteTracks =  (trackGroups = {}, selectedSpeakerDeviceId) => {
     let ret = []
 
     let participantIds = _.keys(trackGroups)
@@ -196,50 +192,64 @@ function App() {
     }
     for (let participantId of participantIds) {
       ret.push(<div key={participantId} className="B_Body_Block">
-       {/* <RemoteTrack trackIds={trackGroups[participantId]} selectedSpeakerDeviceId={selectedSpeakerDeviceId} /> */}
+        <RemoteTrackH trackIds={trackGroups[participantId]} selectedSpeakerDeviceId={selectedSpeakerDeviceId} />
       </div>)
     }
 
     return ret
   }
 
-  let remoteTrackGroups = _.groupBy(state.remoteTrackIds, (rt) => { return rt.participantId })
+  
 
-  if (state.loaded === false) {
-    return null
+  if (loaded === false) {
+      return (
+        <div className='App'>
+          <div className='AppLoading'>
+            <h3>Loading...</h3>
+          </div>
+        </div>
+      )
     
   }
 
   return (
     <div className='App'>
         <div className='TL'>
-        <div>Server: <input readOnly={state.status !== 'closed'} type='text' onChange={(event) =>  setState({...state, serverURL: event.target.value })}  value={state.serverURL} /></div>
-          <div>Room: <input readOnly={state.status !== 'closed'} type='text' onChange={(event) =>  setState({...state, roomId: event.target.value })} value={state.roomId} /></div>
+        <div>Server: <input readOnly={status !== 'closed'} type='text' onChange={(event) =>  setServerURL( event.target.value)}  value={serverURL} /></div>
+          <div>Room: <input readOnly={status !== 'closed'} type='text' onChange={(event) =>  setRoomId( event.target.value)} value={roomId} /></div>
           <div>
-            {state.status === 'closed'
+            {status === 'closed'
               ? <button onClick={onConnect}>
                 Connect
               </button>
-              : state.status === 'open'
+              : status === 'open'
                   ? <button onClick={onDisconnect}>
                       Disconnect
                     </button>
                   : <button disabled={true} >
-                      {state.status}
+                      {status}
                     </button>
             }
           </div>
-          <div>{state.lastError}</div>
+          <div>{lastError}</div>
         </div>
         <div className="TR">
           <div className="TR_Header">
             <h3>Me</h3>
-            <LocalSpeaker deviceList={state.deviceList} key='LocalSpeaker' defaultSpeakerId={state.defaultSpeakerId} onSpeakerChanged={onSpeakerChanged} />
+            <LocalSpeaker deviceList={deviceList} key='LocalSpeaker' defaultSpeakerId={defaultSpeakerId} onSpeakerChanged={onSpeakerChanged} />
           </div>
           <div className='TR_Body'>
             <div className="TR_Body_Block">
-            <LocalTracks activeRoomId={state.activeRoomId} deviceList={state.deviceList} defaultMicId={state.defaultMicId} defaultVideoId={state.defaultVideoId} key='localTracks' />
+            <LocalTracks activeRoomId={activeRoomId} deviceList={deviceList} defaultMicId={defaultMicId} defaultVideoId={defaultVideoId} key='localTracks' />
             </div>
+          </div>
+        </div>
+        <div className="B">
+          <div className="B_Header">
+            <h3>Them</h3>
+          </div>
+          <div className="B_Body">
+            {renderRemoteTracks(remoteTrackGroups, selectedSpeakerDeviceId)}
           </div>
         </div>
       </div>
