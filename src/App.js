@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import LocalSpeaker from './LocalSpeaker';
+import LocalTracks from './LocalTracks';
 import logo from './logo.svg';
 import './App.css';
 import { v4 as uuidv4 } from 'uuid'
@@ -28,10 +29,10 @@ function App() {
   useEffect(() => {
     window.JitsiMeetJS.init()
 
-    window.telimed = {}
-    window.telimed.remoteTracks = []
-    window.telimed.activeConnection = null
-    window.telimed.activeRoom = null
+    window.sherpany = {}
+    window.sherpany.remoteTracks = []
+    window.sherpany.activeConnection = null
+    window.sherpany.activeRoom = null
   },[])
 
   useEffect(() => {
@@ -86,9 +87,9 @@ function App() {
       type: track.getType(),
       track: track
     }
-    window.telimed.remoteTracks.push(trackInfo)
+    window.sherpany.remoteTracks.push(trackInfo)
     setState({...state,
-      remoteTrackIds: _.map(window.telimed.remoteTracks, (rt) => { return { id: rt.id, participantId: rt.participantId } })
+      remoteTrackIds: _.map(window.sherpany.remoteTracks, (rt) => { return { id: rt.id, participantId: rt.participantId } })
     })
   }
 
@@ -97,22 +98,22 @@ function App() {
       return
     }
     let trackId = track.getId()
-    window.telimed.remoteTracks = _.reject(window.telimed.remoteTracks, { id: trackId })
+    window.sherpany.remoteTracks = _.reject(window.sherpany.remoteTracks, { id: trackId })
     setState({...state,
-      remoteTrackIds: _.map(window.telimed.remoteTracks, (rt) => { return { id: rt.id, participantId: rt.participantId } })
+      remoteTrackIds: _.map(window.sherpany.remoteTracks, (rt) => { return { id: rt.id, participantId: rt.participantId } })
     })
   }
 
   const onConnectionSuccess = () => {
     const { roomId } = state
     try {
-      window.telimed.activeRoom = window.telimed.activeConnection.initJitsiConference(roomId, {
+      window.sherpany.activeRoom = window.sherpany.activeConnection.initJitsiConference(roomId, {
         openBridgeChannel: true
       })
-      window.telimed.activeRoom.addEventListener(window.JitsiMeetJS.events.conference.TRACK_ADDED, onRoomTrackAdded)
-      window.telimed.activeRoom.addEventListener(window.JitsiMeetJS.events.conference.TRACK_REMOVED, onRoomTrackRemoved)
+      window.sherpany.activeRoom.addEventListener(window.JitsiMeetJS.events.conference.TRACK_ADDED, onRoomTrackAdded)
+      window.sherpany.activeRoom.addEventListener(window.JitsiMeetJS.events.conference.TRACK_REMOVED, onRoomTrackRemoved)
       
-      window.telimed.activeRoom.join()
+      window.sherpany.activeRoom.join()
    setState({...state,
         status: 'open',
         lastError: '',
@@ -135,17 +136,17 @@ function App() {
   }
 
   const onConnectionDisconnect = () => {
-    window.telimed.activeConnection.removeEventListener(window.JitsiMeetJS.events.connection.CONNECTION_ESTABLISHED, onConnectionSuccess)
-    window.telimed.activeConnection.removeEventListener(window.JitsiMeetJS.events.connection.CONNECTION_FAILED, onConnectionFailed)
-    window.telimed.activeConnection.removeEventListener(window.JitsiMeetJS.events.connection.CONNECTION_DISCONNECTED, onConnectionDisconnect)
-    window.telimed.activeRoom.removeEventListener(window.JitsiMeetJS.events.conference.TRACK_ADDED, onRoomTrackAdded)
-    window.telimed.activeRoom.removeEventListener(window.JitsiMeetJS.events.conference.TRACK_REMOVED, onRoomTrackRemoved)
+    window.sherpany.activeConnection.removeEventListener(window.JitsiMeetJS.events.connection.CONNECTION_ESTABLISHED, onConnectionSuccess)
+    window.sherpany.activeConnection.removeEventListener(window.JitsiMeetJS.events.connection.CONNECTION_FAILED, onConnectionFailed)
+    window.sherpany.activeConnection.removeEventListener(window.JitsiMeetJS.events.connection.CONNECTION_DISCONNECTED, onConnectionDisconnect)
+    window.sherpany.activeRoom.removeEventListener(window.JitsiMeetJS.events.conference.TRACK_ADDED, onRoomTrackAdded)
+    window.sherpany.activeRoom.removeEventListener(window.JitsiMeetJS.events.conference.TRACK_REMOVED, onRoomTrackRemoved)
   }
 
   const onConnect = () => {
     const { roomId, serverURL } = state
     setState({...state, status: 'Joining...'})
-    window.telimed.activeConnection = new window.JitsiMeetJS.JitsiConnection(null, null, {
+    window.sherpany.activeConnection = new window.JitsiMeetJS.JitsiConnection(null, null, {
       hosts: {
         domain: serverURL,
         muc: `conference.${serverURL}` // FIXME: use XEP-0030
@@ -154,21 +155,21 @@ function App() {
       clientNode: `https://${serverURL}`
     })
 
-    window.telimed.activeConnection.addEventListener(window.JitsiMeetJS.events.connection.CONNECTION_ESTABLISHED, onConnectionSuccess)
-    window.telimed.activeConnection.addEventListener(window.JitsiMeetJS.events.connection.CONNECTION_FAILED, onConnectionFailed)
-    window.telimed.activeConnection.addEventListener(window.JitsiMeetJS.events.connection.CONNECTION_DISCONNECTED, onConnectionDisconnect)
-    window.telimed.activeConnection.connect()
+    window.sherpany.activeConnection.addEventListener(window.JitsiMeetJS.events.connection.CONNECTION_ESTABLISHED, onConnectionSuccess)
+    window.sherpany.activeConnection.addEventListener(window.JitsiMeetJS.events.connection.CONNECTION_FAILED, onConnectionFailed)
+    window.sherpany.activeConnection.addEventListener(window.JitsiMeetJS.events.connection.CONNECTION_DISCONNECTED, onConnectionDisconnect)
+    window.sherpany.activeConnection.connect()
   }
 
   const onDisconnect = () => {
-    if (window.telimed.activeRoom) {
+    if (window.sherpany.activeRoom) {
       setState({...state,
         status: 'Leaving...'
       })
       try {
-        window.telimed.activeRoom.leave().then(() => {
-          if (window.telimed.activeConnection) {
-            window.telimed.activeConnection.disconnect()
+        window.sherpany.activeRoom.leave().then(() => {
+          if (window.sherpany.activeConnection) {
+            window.sherpany.activeConnection.disconnect()
           }
           setState({...state,
             status: 'closed',
@@ -237,7 +238,7 @@ function App() {
           </div>
           <div className='TR_Body'>
             <div className="TR_Body_Block">
-             
+            <LocalTracks activeRoomId={state.activeRoomId} deviceList={state.deviceList} defaultMicId={state.defaultMicId} defaultVideoId={state.defaultVideoId} key='localTracks' />
             </div>
           </div>
         </div>
