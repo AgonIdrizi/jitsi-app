@@ -54,28 +54,28 @@ const RemoteTrackH = ({trackIds, selectedSpeakerDeviceId}) => {
       let micTrack = _.find(tracks, { type: 'audio' })
       let newState = {}
             if (videoTrack) {
-             // const { selectedVideoId } = this.state
+            
                 if (videoTrack.id !== selectedVideoId) {
                     let oldVideoTrack = _.find(tracks, { id: selectedVideoId })
                     if (oldVideoTrack) {
                         updateTrack(oldVideoTrack, 'clear')
                     }
                     updateTrack(videoTrack, 'set')
-                    //newState.selectedVideoId = videoTrack.id
+                    
                     setSelectedVideoId(videoTrack.id)
                 }
             }
             if (micTrack) {
-                //const { selectedMicId } = this.state
+                
                 if (micTrack.id !== selectedMicId) {
-                    //const { selectedSpeakerDeviceId } = this.props
+                    
                     let oldMicTrack = _.find(this.tracks, { id: selectedMicId })
                     if (oldMicTrack) {
                         updateTrack(oldMicTrack, 'clear')
                     }
                     updateTrack(micTrack, 'set')
                     micTrack.track.setAudioOutput(selectedSpeakerDeviceId)
-                    //newState.selectedMicId = micTrack.id
+                    
                     setselectedMicId(micTrack.id)
                 }
             }
@@ -129,11 +129,10 @@ const onTrackMuteChangedEvent = (track) => {
     console.log('Remotetrack mute changed', track)
     if(track.type === 'video') {
         // hide video element
-        //this.setState({isVideoMuted: track.muted})
         setIsVideoMuted(track.muted)
     }
     if(track.type === 'audio') {
-        //this.setState({isMicMuted: track.muted})
+        
         setIsMicMuted(track.muted)
     }
     
@@ -170,13 +169,12 @@ const onTrackMuteChangedEvent = (track) => {
                      
                       track.track.addEventListener(window.JitsiMeetJS.events.track.TRACK_MUTE_CHANGED, onTrackMuteChangedEvent)
                       track.track.attach(micRef.current)
-                      
                       console.log('track.track RemoteTrack', track)
                   }
               break
               case 'video':
                   if (videoRef.current) {
-                      //this.setState({isVideoMuted: track.track.muted})
+    
                       setIsVideoMuted(track.track.muted)
                       track.track.addEventListener(window.JitsiMeetJS.events.track.TRACK_MUTE_CHANGED, onTrackMuteChangedEvent)
                       track.track.attach(videoRef.current)
