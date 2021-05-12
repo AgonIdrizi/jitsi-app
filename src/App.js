@@ -57,7 +57,7 @@ function App() {
       setDefaultSpeakerId(speakerId);
       setLoaded(true);
     });
-    console.log("agon", window.JitsiMeetJS);
+    
   }, []);
 
   const onSpeakerChanged = newSpeaker => {
@@ -291,14 +291,8 @@ function App() {
         <div>{lastError}</div>
       </div>
       <div className="TR">
-        <div className="TR_Header">
+      <div className="TR_Header">
           <h3>Me</h3>
-          <LocalSpeaker
-            deviceList={deviceList}
-            key="LocalSpeaker"
-            defaultSpeakerId={defaultSpeakerId}
-            onSpeakerChanged={onSpeakerChanged}
-          />
         </div>
         <div className="TR_Body">
           <div className="TR_Body_Block">
