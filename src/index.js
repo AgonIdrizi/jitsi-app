@@ -1,12 +1,36 @@
-import React from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import { useLocalStorageState } from './hooks/useLocalStorage'
+
+const UserPermission = ({children}) => {
+  const [havePermissions, setHavePermissions] = useLocalStorageState('havePermissions',false)
+
+  useEffect(() => {
+    const permissions = navigator.mediaDevices.getUserMedia({audio: true, video: true})
+    permissions.then((stream) => {
+     if(stream.active){
+      setHavePermissions(true) 
+      console.log('stream active', stream)
+     }
+      
+    })
+    .catch((err) => {
+      setHavePermissions(false)
+      console.log(`${err.name} : ${err.message}`)
+    });
+    
+  }, [])
+  return havePermissions ? children : <div>Please enable camera&microphone and refresh page to join conference</div>
+}
+
+
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <UserPermission ><App /></UserPermission>
   </React.StrictMode>,
   document.getElementById("root")
 );
