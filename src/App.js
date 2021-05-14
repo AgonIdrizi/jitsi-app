@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import _ from "lodash";
-import LocalTracksH from "./LocalTracksH";
-import RemoteTrackH from "./RemoteTrackH";
+import LocalTracks from "./LocalTracks";
+import RemoteTrack from "./RemoteTrack";
 import "./App.css";
 
 function App() {
@@ -238,7 +238,7 @@ function App() {
     for (let participantId of participantIds) {
       ret.push(
         <div key={participantId} className="B_Body_Block">
-          <RemoteTrackH
+          <RemoteTrack
             trackIds={trackGroups[participantId]}
             selectedSpeakerDeviceId={selectedSpeakerDeviceId}
           />
@@ -297,7 +297,7 @@ function App() {
         </div>
         <div className="TR_Body">
           <div className="TR_Body_Block">
-            <LocalTracksH
+            <LocalTracks
               activeRoomId={activeRoomId}
               deviceList={deviceList}
               defaultMicId={defaultMicId}
