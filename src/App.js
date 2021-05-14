@@ -1,12 +1,8 @@
 import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import _ from "lodash";
-import LocalSpeaker from "./LocalSpeaker";
-import LocalTracks from "./LocalTracks";
 import LocalTracksH from "./LocalTracksH";
-import RemoteTrack from "./RemoteTrack";
 import RemoteTrackH from "./RemoteTrackH";
-import { useLocalStorageState } from './hooks/useLocalStorage'
 import "./App.css";
 
 function App() {
@@ -26,7 +22,9 @@ function App() {
  
 
   useEffect(() => {
-    window.JitsiMeetJS.init();
+    window.JitsiMeetJS.init({
+      disableRtx: true, // for firefox video freeze issue
+    });
 
     window.sherpany = {};
     window.sherpany.remoteTracks = [];
@@ -119,7 +117,7 @@ function App() {
       window.sherpany.activeRoom = window.sherpany.activeConnection.initJitsiConference(
         roomId,
         {
-          openBridgeChannel: true
+          openBridgeChannel: 'websocket'
         }
       );
       window.sherpany.activeRoom.addEventListener(
@@ -132,6 +130,7 @@ function App() {
       );
 
       window.sherpany.activeRoom.join();
+      //window.sherpany.setSenderVideoConstraint(180)
 
       setStatus("open");
       setLastError("");

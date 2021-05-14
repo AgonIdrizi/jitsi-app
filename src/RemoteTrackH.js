@@ -39,7 +39,7 @@ const RemoteTrackH = ({ trackIds, selectedSpeakerDeviceId }) => {
         setselectedMicId(micTrack.id);
         // sets state of MicMuted in mount
         setIsMicMuted(micTrack.track.muted);
-        micTrack.track.setAudioOutput(selectedSpeakerDeviceId);
+      // micTrack.track.setAudioOutput(selectedSpeakerDeviceId);
       }
       // this.setState(newState)
     }
@@ -67,12 +67,12 @@ const RemoteTrackH = ({ trackIds, selectedSpeakerDeviceId }) => {
       }
       if (micTrack) {
         if (micTrack.id !== selectedMicId) {
-          let oldMicTrack = _.find(this.tracks, { id: selectedMicId });
+          let oldMicTrack = _.find(tracks, { id: selectedMicId });
           if (oldMicTrack) {
             updateTrack(oldMicTrack, "clear");
           }
           updateTrack(micTrack, "set");
-          micTrack.track.setAudioOutput(selectedSpeakerDeviceId);
+        //  micTrack.track.setAudioOutput(selectedSpeakerDeviceId); this is not supported in firefox
 
           setselectedMicId(micTrack.id);
         }
@@ -81,7 +81,7 @@ const RemoteTrackH = ({ trackIds, selectedSpeakerDeviceId }) => {
       if (selectedSpeakerDeviceId !== prevprops.selectedSpeakerDeviceId) {
         let micTrack = _.find(tracks, { id: selectedMicId });
         if (micTrack) {
-          micTrack.track.setAudioOutput(selectedSpeakerDeviceId);
+         // micTrack.track.setAudioOutput(selectedSpeakerDeviceId); this is not supported in firefox
         }
       }
     }
