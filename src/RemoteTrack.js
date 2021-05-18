@@ -10,7 +10,7 @@ const RemoteTrack = ({ trackIds, selectedSpeakerDeviceId }) => {
   const [isVideoMuted, setIsVideoMuted] = useState(false);
   const videoRef = useRef();
   const micRef = useRef();
-  let tracks = [];
+  let tracks = []; // make this with useRef, on every render this si lost
 
   useEffect(() => {
     let localTrackIds = [];
@@ -46,6 +46,7 @@ const RemoteTrack = ({ trackIds, selectedSpeakerDeviceId }) => {
   }, []);
 
   useEffect(() => {
+    console.log('UseEffect remoteTracks', {trackIds, prevprops, tracks})
     if (trackIds !== prevprops.trackIds) {
       let participantId = _.first(_.map(trackIds, tid => tid.participantId));
       tracks = _.filter(window.sherpany.remoteTracks, {

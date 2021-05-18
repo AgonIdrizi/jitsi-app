@@ -209,11 +209,11 @@ const LocalTracks = ({
         // eslint-disable-next-line default-case
         switch (setTrack.getType()) {
           case "audio":
-            if (micRef.current) {
+            //if (micRef.current) {
               console.log("setTrack", micRef, setTrack);
 
               setTrack.mute();
-            }
+            //}
             break;
           case "video":
             if (setTrack && videoRef.current) {
@@ -233,11 +233,11 @@ const LocalTracks = ({
         // eslint-disable-next-line default-case
         switch (setTrack.getType()) {
           case "audio":
-            if (micRef.current) {
+            //if (micRef.current) {
               console.log("setTrack", micRef, setTrack);
 
               setTrack.unmute();
-            }
+            //}
             break;
           case "video":
             if (setTrack && videoRef.current) {
@@ -291,7 +291,7 @@ const LocalTracks = ({
         <video autoPlay="1" ref={videoRef} />
       </div>
       <div>
-        <audio autoPlay="1" ref={micRef} />
+        {/*<audio ref={micRef} /> */}
       </div>
       <button onClick={() => setIsMicMuted(!isMicMuted)}>
         {isMicMuted ? "unmute sound" : "mute sound"}
