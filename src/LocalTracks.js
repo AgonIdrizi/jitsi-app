@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import _ from "lodash";
 import "./LocalTracks.css";
+import micOffIcon from './assets/mic-off.svg'
+import micIcon from './assets/mic.svg'
+import videoOffIcon from './assets/video-off.svg'
+import videoIcon from './assets/video.svg'
 
 const LocalTracks = ({
   deviceList,
@@ -294,10 +298,10 @@ const LocalTracks = ({
         {/*<audio ref={micRef} /> */}
       </div>
       <button onClick={() => setIsMicMuted(!isMicMuted)}>
-        {isMicMuted ? "unmute sound" : "mute sound"}
+        {isMicMuted ? <img src={micOffIcon} /> : <img src={micIcon} />}
       </button>
       <button onClick={() => setIsVideoMuted(!isVideoMuted)}>
-        {isVideoMuted ? "unmute video" : "mute video"}
+        {isVideoMuted ? <img src={videoOffIcon} /> : <img src={videoIcon} />}
       </button>
     </div>
   );
