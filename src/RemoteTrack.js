@@ -10,7 +10,7 @@ const RemoteTrack = ({ trackIds, selectedSpeakerDeviceId }) => {
   const [isVideoMuted, setIsVideoMuted] = useState(false);
   const videoRef = useRef();
   const micRef = useRef();
-  let tracks = []; // make this with useRef, on every render this si lost
+  const tracks = useRef([]); // make this with useRef, on every render this si lost
 
   useEffect(() => {
     let localTrackIds = [];
@@ -18,12 +18,12 @@ const RemoteTrack = ({ trackIds, selectedSpeakerDeviceId }) => {
       return track["id"];
     });
 
-    tracks = _.filter(window.sherpany.remoteTracks, rt => {
+    tracks.current = _.filter(window.sherpany.remoteTracks, rt => {
       return _.indexOf(localTrackIds, rt.id) !== -1;
     });
 
-    let videoTrack = _.find(tracks, { type: "video" });
-    let micTrack = _.find(tracks, { type: "audio" });
+    let videoTrack = _.find(tracks.current, { type: "video" });
+    let micTrack = _.find(tracks.current, { type: "audio" });
 
     if (videoTrack || micTrack) {
       let newState = {};
@@ -49,11 +49,11 @@ const RemoteTrack = ({ trackIds, selectedSpeakerDeviceId }) => {
     console.log('UseEffect remoteTracks', {trackIds, prevprops, tracks})
     if (trackIds !== prevprops.trackIds) {
       let participantId = _.first(_.map(trackIds, tid => tid.participantId));
-      tracks = _.filter(window.sherpany.remoteTracks, {
+      tracks.current = _.filter(window.sherpany.remoteTracks, {
         participantId: participantId
       });
-      let videoTrack = _.find(tracks, { type: "video" });
-      let micTrack = _.find(tracks, { type: "audio" });
+      let videoTrack = _.find(tracks.current, { type: "video" });
+      let micTrack = _.find(tracks.current, { type: "audio" });
       let newState = {};
       if (videoTrack) {
         if (videoTrack.id !== selectedVideoId) {
@@ -99,7 +99,7 @@ const RemoteTrack = ({ trackIds, selectedSpeakerDeviceId }) => {
       let videoTrack = _.find(tracks, { id: selectedVideoId });
       if (videoTrack) {
         try {
-          this.updateTrack(videoTrack, "clear");
+          updateTrack(videoTrack, "clear");
         } catch (error) {
           console.log(error.message);
         }
@@ -107,7 +107,7 @@ const RemoteTrack = ({ trackIds, selectedSpeakerDeviceId }) => {
       let micTrack = _.find(tracks, { id: selectedMicId });
       if (micTrack) {
         try {
-          this.updateTrack(micTrack, "clear");
+          updateTrack(micTrack, "clear");
         } catch (error) {
           console.log(error.message);
         }

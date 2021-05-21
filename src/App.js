@@ -23,7 +23,8 @@ function App() {
 
   useEffect(() => {
     window.JitsiMeetJS.init({
-      disableRtx: true, // for firefox video freeze issue
+      disableRtx: true, // for firefox video freeze issue,
+      disabledCodec: true
     });
 
     window.sherpany = {};
@@ -111,13 +112,22 @@ function App() {
     );
   };
 
+  const onDominantSpeakerChanged = (id) => {
+    //participantId of the new dominant speaker
+    console.log('DOMINANT_SPEAKER_CHANGED fired', id)
+  }
+
   const onConnectionSuccess = () => {
     
     try {
       window.sherpany.activeRoom = window.sherpany.activeConnection.initJitsiConference(
         roomId,
         {
-          openBridgeChannel: 'websocket'
+          openBridgeChannel: 'websocket',
+          p2p: {
+            enabled: false
+            disabledCodec: true,
+          }
         }
       );
       window.sherpany.activeRoom.addEventListener(
@@ -128,6 +138,10 @@ function App() {
         window.JitsiMeetJS.events.conference.TRACK_REMOVED,
         onRoomTrackRemoved
       );
+      window.sherpany.activeRoom.addEventListener(
+        window.JitsiMeetJS.events.conference.DOMINANT_SPEAKER_CHANGED,
+        onDominantSpeakerChanged
+      )
 
       window.sherpany.activeRoom.join();
       //window.sherpany.setSenderVideoConstraint(180)
@@ -171,6 +185,10 @@ function App() {
       window.JitsiMeetJS.events.conference.TRACK_REMOVED,
       onRoomTrackRemoved
     );
+    window.sherpany.activeRoom.removeEventListener(
+      window.JitsiMeetJS.events.conference.DOMINANT_SPEAKER_CHANGED,
+      onDominantSpeakerChanged
+    )
   };
 
   const onConnect = () => {
