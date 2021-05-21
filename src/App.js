@@ -20,7 +20,7 @@ function App() {
   const [activeRoomId, setActiveRoomId] = useState(null);
   const [remoteTracks, setRemoteTracks] = useState([]);
  
-
+  console.log('PROCES ENV', process.env.NODE_ENV !== 'production' ? 'http://localhost:3000' : process.env.REACT_APP_CLIENT_URL)
   useEffect(() => {
     window.JitsiMeetJS.init({
       disableRtx: true, // for firefox video freeze issue,
@@ -125,7 +125,7 @@ function App() {
         {
           openBridgeChannel: 'websocket',
           p2p: {
-            enabled: false
+            enabled: false,
             disabledCodec: true,
           }
         }
@@ -203,7 +203,7 @@ function App() {
           muc: `conference.${serverURL}` // FIXME: use XEP-0030
         },
         serviceUrl: `wss://${serverURL}/xmpp-websocket?room=${roomId}`,
-        clientNode: `https://${serverURL}`
+        clientNode: process.env.NODE_ENV !== 'production' ? 'http://localhost:3000' : process.env.REACT_APP_CLIENT_URL
       }
     );
 
